@@ -7,6 +7,13 @@ import java.util.stream.Collectors;
 
 public class DayThree extends AbstractAdventOfCode {
 
+    private List<String> input;
+
+    @Override
+    public void setup() throws Exception {
+        input = readInputForDay(3);
+    }
+
     public List<String> createSmallerRucksack(String combinedRucksack, int partition) {
         int size = combinedRucksack.length();
         int chunkSize = size / partition;
@@ -39,7 +46,7 @@ public class DayThree extends AbstractAdventOfCode {
 
     @Override
     public Object solvePartOne() throws Exception {
-        return readInputForDay(3).stream()
+        return input.stream()
                 .map(l -> createSmallerRucksack(l, 2))
                 .mapToInt(s -> scoreChar(findOverlappingCharacter(s)))
                 .sum();
@@ -47,7 +54,6 @@ public class DayThree extends AbstractAdventOfCode {
 
     @Override
     public Object solvePartTwo() throws Exception {
-        List<String> input =  readInputForDay(3);
         List<List<String>> splitLines = new ArrayList<>();
         List<String> split = new ArrayList<>();
         for (int i = 0; i < input.size(); i++) {

@@ -89,16 +89,22 @@ public abstract class AbstractAdventOfCode {
 
     public abstract Object solvePartOne() throws Exception;
     public abstract Object solvePartTwo() throws Exception;
+    public void setup() throws Exception {
+        // nothing
+    }
 
     public void execute() {
         try {
-            long start = System.currentTimeMillis();
+            setup();
+            long start = System.nanoTime();
             Object answer = solvePartOne();
-            System.out.println(String.format("(1) %6dms - %s", System.currentTimeMillis() - start, answer));
+            float delta = (System.nanoTime() - start) / 1000000f;
+            System.out.println(String.format("(1) %6.2f ms - %s", delta, answer));
 
-            start = System.currentTimeMillis();
+            start = System.nanoTime();
             answer = solvePartTwo();
-            System.out.println(String.format("(2) %6dms - %s", System.currentTimeMillis() - start, answer));
+            delta = (System.nanoTime() - start) / 1000000f;
+            System.out.println(String.format("(2) %6.2f ms - %s", delta, answer));
         } catch (Exception ex) {
             System.err.println("An error occurred while solving advent of code problem!");
             ex.printStackTrace();
