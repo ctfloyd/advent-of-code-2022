@@ -45,14 +45,11 @@ public class DayFive extends AbstractAdventOfCode {
     private String solve(Map<Integer, Stack<Character>> cargoStacks, int instructionIndex, boolean craneMover9001) {
         for (int i = instructionIndex; i < input.size(); i++) {
             String rawInstruction = input.get(i);
-            String parsedInstruction = rawInstruction.replaceAll("move ", "")
-                    .replaceAll("from ", "")
-                    .replaceAll("to ", "");
-            String[] rawNumbers = parsedInstruction.split(" ");
+            String[] rawNumbers = rawInstruction.split(" ");
 
-            int amount = Integer.parseInt(rawNumbers[0]);
-            int from = Integer.parseInt(rawNumbers[1]);
-            int to = Integer.parseInt(rawNumbers[2]);
+            int amount = Integer.parseInt(rawNumbers[1]);
+            int from = Integer.parseInt(rawNumbers[3]);
+            int to = Integer.parseInt(rawNumbers[5]);
 
             Stack<Character> fromStack = cargoStacks.get(from);
             Stack<Character> toStack = cargoStacks.get(to);
@@ -73,17 +70,11 @@ public class DayFive extends AbstractAdventOfCode {
             }
         }
 
-        String output = "";
-        List<Map.Entry<Integer, Stack<Character>>> orderedEntries = cargoStacks.entrySet()
-                .stream()
-                .sorted(Map.Entry.comparingByKey())
-                .collect(Collectors.toList());
-
-        for (Map.Entry<Integer, Stack<Character>> entry : orderedEntries) {
-            output += entry.getValue().peek();
+        StringBuilder output = new StringBuilder();
+        for (Stack<Character> st : cargoStacks.values()) {
+            output.append(st.peek());
         }
-
-        return output;
+        return output.toString();
     }
 
     @Override
