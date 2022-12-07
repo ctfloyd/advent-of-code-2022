@@ -3,6 +3,7 @@ package adventofcode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 public class DaySeven extends AbstractAdventOfCode {
 
@@ -13,63 +14,62 @@ public class DaySeven extends AbstractAdventOfCode {
         input = readInputForDay(7);
     }
 
+    private String getCurrentDirectoryString(Stack<String> stack)  {
+        String s = "/";
+        for (String str : stack) {
+            if (!str.equals("/")) {
+                if (s.equals("/")) {
+                    s += str;
+                } else {
+                    s += "/" + str;
+                }
+            }
+        }
+        return s;
+    }
+
+    private void walkPathAndIncrement(Map<String, Integer> filePathAndSize, Stack<String> currentDirectory, int sizeInBytes) {
+        String path = "/";
+        for (String st : currentDirectory) {
+            if (path.equals("/")) {
+                if (!st.equals("/")) {
+                    path += st;
+                }
+            } else {
+                path += "/" + st;
+            }
+            filePathAndSize.put(path, filePathAndSize.getOrDefault(path, 0) + sizeInBytes);
+        }
+    }
+
     private Map<String, Integer> makeFileSystem() {
         Map<String, Integer> filePathAndSize = new HashMap<>();
-        String currentDirectory = "";
-        boolean inListFiles = false;
+
+        Stack<String> currentDirectory = new Stack<>();
         for (String str : input) {
             String[] split = str.split(" ");
             if (split[0].equals("$")) {
                 if (split[1].equals("cd")) {
                     if (split[2].equals("..")) {
-                        currentDirectory = currentDirectory.substring(0, currentDirectory.lastIndexOf("/"));
-                        if (currentDirectory.isEmpty()) {
-                            currentDirectory = "/";
-                        }
+                        currentDirectory.pop();
                     } else {
-                        if (currentDirectory.endsWith("/") || currentDirectory.isEmpty()) {
-                            currentDirectory += split[2];
-                        } else {
-                            currentDirectory += "/" + split[2];
-                        }
-                        filePathAndSize.put(currentDirectory, 0);
+                        currentDirectory.push(split[2]);
+                        String currentDirectoryStr = getCurrentDirectoryString(currentDirectory);
+                        filePathAndSize.put(currentDirectoryStr, 0);;
                     }
                 }
-
-                if (split[1].equals("ls")) {
-                    inListFiles = true;
-                }
-            } else if (inListFiles) {
+            } else {
                 if (!split[0].equals("dir")) {
                     try {
-                        Integer sizeInBytes = Integer.parseInt(split[0]);
-                        Integer currentValue = filePathAndSize.getOrDefault(currentDirectory, 0);
-                        filePathAndSize.put(currentDirectory, currentValue + sizeInBytes);
+                        walkPathAndIncrement(filePathAndSize, currentDirectory, Integer.parseInt(split[0]));
                     } catch (NumberFormatException e) {
                         // not a number, swallow error and move on
-                        inListFiles = false;
                     }
                 }
             }
         }
 
-        Map<String, Integer> actualFilePathAndSize = new HashMap<>();
-        for (Map.Entry<String, Integer> entry : filePathAndSize.entrySet()) {
-            String directory = entry.getKey();
-            int size = filePathAndSize.get(directory);
-
-            for (Map.Entry<String, Integer> entry2 : filePathAndSize.entrySet()) {
-                String otherDirectory = entry2.getKey();
-                int otherSize = entry2.getValue();
-                if (otherDirectory.contains(directory) && !otherDirectory.equals(directory)) {
-                    size += otherSize;
-                }
-            }
-
-            actualFilePathAndSize.put(directory, size);
-        }
-
-        return actualFilePathAndSize;
+        return filePathAndSize;
     }
 
 
