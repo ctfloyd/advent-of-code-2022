@@ -71,8 +71,28 @@ public abstract class AbstractAdventOfCode {
         return read2dBoard(String.format(DEFAULT_INPUT_PATH_TEMPLATE, day));
     }
 
-    public int[][] readExample2dBoardForDay(int day) throws Exception {
+    public int[][] readExample2DBoardForDay(int day) throws Exception {
         return read2dBoard(String.format(DEFAULT_EXAMPLE_INPUT_PATH_TEMPLATE, day));
+    }
+
+    public char[][] read2dBoardForDayAsChars(int day) throws Exception {
+        return read2dBoardAsChars(String.format(DEFAULT_INPUT_PATH_TEMPLATE, day));
+    }
+
+    public char[][] readExample2DBoardForDayAsChars(int day) throws Exception {
+        return read2dBoardAsChars(String.format(DEFAULT_EXAMPLE_INPUT_PATH_TEMPLATE, day));
+    }
+
+    public char[][] read2dBoardAsChars(String path) throws Exception {
+        List<String> lines = readInput(path);
+        char[][] board = new char[lines.size()][lines.get(0).split("").length];
+        for (int i = 0;  i < lines.size(); i++) {
+            String line = lines.get(i);
+            for (int j = 0; j < board[0].length; j++) {
+                board[i][j] = line.charAt(j);
+            }
+        }
+        return board;
     }
 
     public int[][] read2dBoard(String path) throws Exception {
