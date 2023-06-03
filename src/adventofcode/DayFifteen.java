@@ -1,6 +1,9 @@
 package adventofcode;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -47,30 +50,31 @@ public class DayFifteen extends AbstractAdventOfCode {
     }
 
     private List<Range> getRangesForY(List<Sensor> sensors, int y) {
-        List<Range> ranges = sensors.stream().map(s -> s.pointsOnY(y)).filter(Objects::nonNull).toList();
-        boolean didMerge;
-        do {
-            List<Range> mergedRanges = new ArrayList<>();
-            List<Range> currentCandidates = new ArrayList<>(ranges);
-            for (Range range : ranges) {
-                for (Range candidiateRange : new ArrayList<>(currentCandidates)) {
-                    if (range.canMerge(candidiateRange)) {
-                        range.merge(candidiateRange);
-                        currentCandidates.remove(candidiateRange);
-                        if (!mergedRanges.contains(range)) {
-                            mergedRanges.add(range);
-                        }
-                    }
-                }
-                if (currentCandidates.contains(range)) {
-                    mergedRanges.add(range);
-                }
+        List<Range> ranges = new ArrayList<>();
+        for (Sensor s : sensors) {
+            Range r = s.pointsOnY(y);
+            if (r != null) {
+                ranges.add(r);
             }
-            didMerge = mergedRanges.size() != ranges.size();
-            ranges = mergedRanges;
-        } while (didMerge);
+        }
+        ranges.sort(Comparator.comparingInt(r -> r.start));
 
-        return ranges;
+        List<Range> result = new ArrayList<>();
+        Range current = null;
+        for (Range range : ranges) {
+            if (current != null) {
+                if (current.canMerge(range)) {
+                    current.merge(range);
+                } else {
+                    result.add(current);
+                    current = null;
+                }
+            } else {
+                current = range;
+            }
+        }
+        result.add(current);
+        return result;
     }
 
     public List<Sensor> parseInput() {
@@ -92,10 +96,12 @@ public class DayFifteen extends AbstractAdventOfCode {
 
     private class Range {
         int start, end;
+
         public Range(int start, int end) {
             this.start = start;
             this.end = end;
         }
+
         public int getCount(Set<Integer> excludePoints) {
             int count = (end - start) + 1;
             for (Integer excludePoint : excludePoints) {
@@ -123,13 +129,18 @@ public class DayFifteen extends AbstractAdventOfCode {
 
     private class Sensor {
         Point location, beacon;
+        int maxDistance = Integer.MAX_VALUE;
+
         public Sensor(Point location, Point beacon) {
             this.location = location;
             this.beacon = beacon;
         }
 
         public Range pointsOnY(int y) {
-            int maxDistance = Math.abs(location.y - beacon.y) + Math.abs(location.x - beacon.x);
+            if (maxDistance == Integer.MAX_VALUE) {
+                maxDistance = Math.abs(location.y - beacon.y) + Math.abs(location.x - beacon.x);
+            }
+
             int distanceToY = Math.abs(y - location.y);
             int range = maxDistance - distanceToY;
             if (range >= 0) {
@@ -142,8 +153,10 @@ public class DayFifteen extends AbstractAdventOfCode {
 
     private class Point {
         int x, y;
-        Point (int x, int y) {
-            this.x = x; this.y = y;
+
+        Point(int x, int y) {
+            this.x = x;
+            this.y = y;
         }
     }
 
